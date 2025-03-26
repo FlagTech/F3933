@@ -22,11 +22,7 @@ class PdfLoader:
                     "請給我重點數據, 如銷售增長情形、營收變化、開發項目等,"
                     "最後請使用繁體中文輸出報告")])
         self.data_chain = load_summarize_chain(llm=self.llm, chain_type='stuff', prompt=self.data_prompt)
-        # self.word_prompt=ChatPromptTemplate.from_messages(messages=[
-        #     ("system","你可以將使用者輸入的句子取出一個關鍵字,"
-        #     "要取出的關鍵字會是以年報中的會出現的相關名詞為主"),
-        #     ("human","{input}")])
-        # self.word_chain = LLMChain(llm=self.llm, prompt=self.word_prompt)
+
     def annual_report(self,id,y):
         wait_time = random.uniform(2,6)
         url = 'https://doc.twse.com.tw/server-java/t57sb01'
@@ -91,6 +87,7 @@ class PdfLoader:
             with open(folder_path + y + '_' + id + '.pdf', 'wb') as file:
                 file.write(response3.content)
             print('OK')
+            
     def pdf_loader(self,file,size,overlap):
         loader = PDFPlumberLoader(file)
         doc = loader.load()
@@ -104,6 +101,7 @@ class PdfLoader:
             os.makedirs(db_file)
         db.save_local(db_file + file_name)
         return db
+        
     def analyze_chain(self,db,input):
         data = db.similarity_search(input, k=2)
         
