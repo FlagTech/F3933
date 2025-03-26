@@ -11,10 +11,6 @@ from langchain_community.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.summarize import load_summarize_chain
-from langchain_core.output_parsers import CommaSeparatedListOutputParser, StrOutputParser
-from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableSequence
-
 
 class PdfLoader:
     def __init__(self,openai_api_key):
