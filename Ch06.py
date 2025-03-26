@@ -1,7 +1,6 @@
 import getpass
 import openai
 from openai import OpenAI
-import tiktoken
 import yfinance as yf
 import numpy as np
 import requests
