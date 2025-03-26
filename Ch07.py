@@ -22,7 +22,7 @@ class PdfLoader:
             ("system","你現在是一位專業的年報分析師,"
             "你會詳細、嚴謹的統整年報並進行分析, 並提及重要的數字, 然後生成一份專業的年報分析報告,tokens的上限為1600。reply in 繁體中文"),
             ("human","{text}")])
-        self.data_chain = self.data_prompt | llm_model | StrOutputParser()
+        self.data_chain = self.data_prompt | self.llm | StrOutputParser()
         # self.word_prompt=ChatPromptTemplate.from_messages(messages=[
         #     ("system","你可以將使用者輸入的句子取出一個關鍵字,"
         #     "要取出的關鍵字會是以年報中的會出現的相關名詞為主"),
