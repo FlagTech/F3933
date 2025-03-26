@@ -303,7 +303,7 @@ class StockDB:
   # 日頻股價資料
   def stock_price(self, stock_list, start_date):
     # 下載資料
-    df = yf.download(stock_list, start_date)
+    df = yf.download(stock_list, start_date, auto_adjust=False, multi_level_index=False)
 
     if len(df) > 0: # 如果有下載到資料
         # 轉換資料
