@@ -10,19 +10,22 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import RetrievalQA
 from langchain.chains.summarize import load_summarize_chain
+from langchain_core.output_parsers import CommaSeparatedListOutputParser, StrOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableSequence
+
 
 class PdfLoader:
     def __init__(self,openai_api_key):
         os.environ['OPENAI_API_KEY'] = openai_api_key
         
         self.llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
-        self.data_prompt=ChatPromptTemplate.from_messages(messages=[
-            ("system","你現在是一位專業的年報分析師,"
-            "你會詳細、嚴謹的統整年報並進行分析, 並提及重要的數字, 然後生成一份專業的年報分析報告,tokens的上限為1600。reply in 繁體中文"),
-            ("human","{text}")])
-        self.data_chain = self.data_prompt | self.llm | StrOutputParser()
+        self.data_prompt=ChatPromptTemplate.from_messages(messages=[("system","你的任務是對年報資訊進行摘要總結。"
+                    "以下為提供的年報資訊：{text},"
+                    "請給我重點數據, 如銷售增長情形、營收變化、開發項目等,"
+                    "最後請使用繁體中文輸出報告")])
+        self.data_chain = load_summarize_chain(llm=self.llm, chain_type='stuff', prompt=self.data_prompt)
         # self.word_prompt=ChatPromptTemplate.from_messages(messages=[
         #     ("system","你可以將使用者輸入的句子取出一個關鍵字,"
         #     "要取出的關鍵字會是以年報中的會出現的相關名詞為主"),
@@ -108,5 +111,5 @@ class PdfLoader:
     def analyze_chain(self,db,input):
         data = db.max_marginal_relevance_search(input, fetch_k=5, k=2)
         # word = self.word_chain.run(input)
-        result = self.data_chain(data)
+        result = self.data_chain.invoke({"input_documents": data})
         return result['text']
