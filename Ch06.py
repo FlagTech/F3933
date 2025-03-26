@@ -48,11 +48,11 @@ class StockAnalysis():
     end = dt.date.today() # 資料結束時間
     start = end - dt.timedelta(days=days) # 資料開始時間
     # 下載資料
-    df = yf.download(stock_id, start=start)
+    df = yf.download(stock_id, start=start, auto_adjust=False, multi_level_index=False)
   
     # 更換列名
-    df.columns = ['開盤價', '最高價', '最低價',
-                  '收盤價', '調整後收盤價', '成交量']
+    df.columns = ['調整後收盤價', '收盤價', '最高價',
+                  '最低價', '開盤價', '成交量']
   
     data = {
       '日期': df.index.strftime('%Y-%m-%d').tolist(),
