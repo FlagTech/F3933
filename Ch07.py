@@ -5,13 +5,14 @@ import zipfile
 import io
 import requests
 from bs4 import BeautifulSoup
-from langchain.document_loaders import PDFPlumberLoader
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.document_loaders import PDFPlumberLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.chains import LLMChain
+from langchain_community.vectorstores import InMemoryVectorStore
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains import RetrievalQA
+from langchain.chains.summarize import load_summarize_chain
+
 class PdfLoader:
     def __init__(self,openai_api_key):
         os.environ['OPENAI_API_KEY'] = openai_api_key
@@ -21,7 +22,7 @@ class PdfLoader:
             ("system","你現在是一位專業的年報分析師,"
             "你會詳細、嚴謹的統整年報並進行分析, 並提及重要的數字, 然後生成一份專業的年報分析報告,tokens的上限為1600。reply in 繁體中文"),
             ("human","{text}")])
-        self.data_chain = LLMChain(llm=self.llm, prompt=self.data_prompt)
+        self.data_chain = self.data_prompt | llm_model | StrOutputParser()
         # self.word_prompt=ChatPromptTemplate.from_messages(messages=[
         #     ("system","你可以將使用者輸入的句子取出一個關鍵字,"
         #     "要取出的關鍵字會是以年報中的會出現的相關名詞為主"),
@@ -97,7 +98,7 @@ class PdfLoader:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=size,
                                                 chunk_overlap=overlap)
         new_doc = text_splitter.split_documents(doc)
-        db = FAISS.from_documents(new_doc, OpenAIEmbeddings())
+        db = InMemoryVectorStore.from_documents(docs, OpenAIEmbeddings())
         file_name = file.split("/")[-1].split(".")[0]
         db_file = '/content/drive/MyDrive/StockGPT/DB/'
         if not os.path.exists(db_file):
@@ -105,7 +106,7 @@ class PdfLoader:
         db.save_local(db_file + file_name)
         return db
     def analyze_chain(self,db,input):
-        data = db.max_marginal_relevance_search(input)
+        data = db.max_marginal_relevance_search(input, fetch_k=5, k=2)
         # word = self.word_chain.run(input)
         result = self.data_chain(data)
         return result['text']
