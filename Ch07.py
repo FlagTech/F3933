@@ -103,7 +103,7 @@ class PdfLoader:
         return db
         
     def analyze_chain(self,db,input):
-        data = db.similarity_search(input, k=2)
+        data = db.similarity_search(input, k=5)
         
         result = self.data_chain.invoke({"input_documents": data})
         return result['output_text']
