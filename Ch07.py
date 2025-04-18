@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import InMemoryVectorStore
+from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.summarize import load_summarize_chain
@@ -94,7 +94,7 @@ class PdfLoader:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=size,
                                                 chunk_overlap=overlap)
         new_doc = text_splitter.split_documents(doc)
-        db = InMemoryVectorStore.from_documents(new_doc, OpenAIEmbeddings())
+        db = FAISS(new_doc, OpenAIEmbeddings())
         file_name = file.split("/")[-1].split(".")[0]
         db_file = '/content/drive/MyDrive/StockGPT/DB/'
         if not os.path.exists(db_file):
