@@ -6,10 +6,6 @@ import io
 import requests
 from bs4 import BeautifulSoup
 import logging
-
-# 不顯示 pdfminer 的 warning 訊息
-logging.getLogger("pdfminer").setLevel(logging.ERROR)
-
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
@@ -94,6 +90,7 @@ class PdfLoader:
             print('OK')
             
     def pdf_loader(self,file,size,overlap):
+        logging.getLogger("pdfminer").setLevel(logging.ERROR)
         loader = PDFPlumberLoader(file)
         doc = loader.load()
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=size,
