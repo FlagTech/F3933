@@ -94,7 +94,7 @@ class PdfLoader:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=size,
                                                 chunk_overlap=overlap)
         new_doc = text_splitter.split_documents(doc)
-        db = FAISS(new_doc, OpenAIEmbeddings())
+        db = FAISS.from_documents(new_doc, OpenAIEmbeddings())
         file_name = file.split("/")[-1].split(".")[0]
         db_file = '/content/drive/MyDrive/StockGPT/DB/'
         if not os.path.exists(db_file):
