@@ -1,6 +1,6 @@
-pdfplumber==0.11.5
-langchain==0.3.18
-langchain_openai==0.3.10
-langchain_community==0.3.17
+pdfplumber
+langchain
+langchain_openai
+langchain_community
 yfinance==0.2.54
 faiss-cpu
