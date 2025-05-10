@@ -96,7 +96,7 @@ class PdfLoader:
         doc = loader.load()
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=size,
                                                 chunk_overlap=overlap)
-        new_doc = text_splitter.split_documents(doc)
+        docs = text_splitter.split_documents(doc)
 
         embeddings = OpenAIEmbeddings(chunk_size=100)
         
