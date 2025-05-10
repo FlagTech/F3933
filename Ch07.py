@@ -12,6 +12,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.summarize import load_summarize_chain
+from more_itertools import batched
 
 class PdfLoader:
     def __init__(self,openai_api_key):
@@ -96,13 +97,23 @@ class PdfLoader:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=size,
                                                 chunk_overlap=overlap)
         new_doc = text_splitter.split_documents(doc)
-        db = FAISS.from_documents(new_doc, OpenAIEmbeddings())
-        file_name = file.split("/")[-1].split(".")[0]
-        db_file = '/content/drive/MyDrive/StockGPT/DB/'
-        if not os.path.exists(db_file):
-            os.makedirs(db_file)
-        db.save_local(db_file + file_name)
-        return db
+
+        embeddings = OpenAIEmbeddings(chunk_size=100)
+        
+        faiss_db = None
+        for doc_batch in batched(docs, 100):
+            doc_batch = list(doc_batch)
+            if faiss_db is None:
+                faiss_db = FAISS.from_documents(doc_batch, embeddings)
+            else:
+                faiss_db.add_documents(doc_batch)
+    
+        file_name = Path(file).stem
+        db_path = Path(db_dir)
+        db_path.mkdir(parents=True, exist_ok=True)
+        faiss_db.save_local(str(db_path / file_name))
+    
+        return faiss_db
         
     def analyze_chain(self,db,input):
         data = db.similarity_search(input, k=5)
