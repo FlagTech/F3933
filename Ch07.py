@@ -108,11 +108,12 @@ class PdfLoader:
             else:
                 faiss_db.add_documents(doc_batch)
     
-        file_name = Path(file).stem
-        db_path = Path(db_dir)
-        db_path.mkdir(parents=True, exist_ok=True)
-        faiss_db.save_local(str(db_path / file_name))
-    
+        file_name = file.split("/")[-1].split(".")[0]
+        db_file = '/content/drive/MyDrive/StockGPT/DB/'
+        if not os.path.exists(db_file):
+            os.makedirs(db_file)
+        faiss_db.save_local(db_file + file_name)
+        
         return faiss_db
         
     def analyze_chain(self,db,input):
